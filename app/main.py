@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import os
 from contextlib import asynccontextmanager
 
 import httpx
@@ -11,6 +13,7 @@ from .config import get_settings, setup_logging
 from .forager import Forager
 from .http import ApiError
 from .hubspot import HubSpot
+from .poller import poll_loop
 from .services import NotFound, Services, build_filter, summarize
 from .webhooks import check_secret, router as webhook_router
 
@@ -23,8 +26,13 @@ async def lifespan(app: FastAPI):
     async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
         cache = Cache(s.cache_dir)
         app.state.settings = s
-        app.state.svc = Services(s, Forager(s, client, cache), HubSpot(s, client), cache)
+        hs = HubSpot(s, client)
+        app.state.svc = Services(s, Forager(s, client, cache), hs, cache)
+        every = float(os.getenv("POLL_SECONDS", "30"))  # 0 = webhooks only
+        task = asyncio.create_task(poll_loop(hs, app.state.svc, every)) if every > 0 else None
         yield
+        if task:
+            task.cancel()
 
 
 app = FastAPI(title="Forager x HubSpot enrichment", lifespan=lifespan)
