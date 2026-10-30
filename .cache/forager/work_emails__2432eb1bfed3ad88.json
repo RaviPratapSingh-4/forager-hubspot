@@ -1,0 +1,21 @@
+{
+ "job_id": "d6af4974-c613-44d6-9b7a-e2415b2afdf3",
+ "status": "completed",
+ "emails": [
+  {
+   "email": "grace@openai.com",
+   "validation_status": "valid"
+  }
+ ],
+ "error_code": null,
+ "person_id": 185411975,
+ "submitted_lookup": {
+  "first_name": "Grace",
+  "last_name": "Everly",
+  "domain": "",
+  "linkedin_public_identifier": "grace-everly43235"
+ },
+ "date_created": "2026-10-30T11:46:53.292559Z",
+ "date_completed": "2026-10-30T11:46:57.289509Z",
+ "result": "found"
+}
